@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../screens/bluetooth_manager.dart';
 import '../theme/app_theme.dart';
 
 /// A single action definition. Wire up [onTap] to real behavior later —
@@ -105,6 +106,12 @@ class _ActionButton extends StatelessWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('${item.label} tapped')),
               );
+              if (item.label == 'Bluetooth Device') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => BluetoothConnectionScreen(themeMode: Theme.of(context).brightness == Brightness.dark ? ThemeMode.dark : ThemeMode.light)),
+                );
+              }
             },
         child: Container(
           width: width,

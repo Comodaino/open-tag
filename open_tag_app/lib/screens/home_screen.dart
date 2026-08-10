@@ -14,7 +14,7 @@ class HomeScreen extends StatelessWidget {
   });
 
   List<ActionBarItem> get _items => const [
-        ActionBarItem(icon: Icons.add, label: 'Action 1'),
+        ActionBarItem(icon: Icons.add, label: 'Bluetooth Device'),
         ActionBarItem(icon: Icons.share_outlined, label: 'Action 2'),
         ActionBarItem(icon: Icons.download_outlined, label: 'Action 3'),
         ActionBarItem(icon: Icons.settings_outlined, label: 'Action 4'),
