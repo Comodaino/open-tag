@@ -11,8 +11,6 @@
 #define EPD_RST  PIN_104  // Reset
 #define EPD_BUSY PIN_106  // Busy
 
-#define LED PIN_015 //Set a definiton on pin P0.15 called "LED".
-
 GxEPD2_4C<GxEPD2_154c_GDEM0154F51H, GxEPD2_154c_GDEM0154F51H::HEIGHT> display(
   GxEPD2_154c_GDEM0154F51H(/*CS=*/ EPD_CS, /*DC=*/ EPD_DC, /*RST=*/ EPD_RST, /*BUSY=*/ EPD_BUSY)
 );
@@ -26,9 +24,7 @@ uint8_t  imageColorBit = 0;
 uint32_t totalPixel = 0; // received pixel
 
 // pixel line buffer, should be large enough to hold an image width
-unsigned char pixel_buf_b[512];
-unsigned char pixel_buf_y[512];
-unsigned char pixel_buf_r[512];
+uint16_t pixel_buf[256];
 
 // Statistics for speed testing
 uint32_t rxStartTime = 0;
@@ -48,9 +44,7 @@ void setup()
   display.init();
   display.setFullWindow();
   display.firstPage();
-  memset(pixel_buf_b, 0, sizeof(pixel_buf_b));
-  memset(pixel_buf_y, 0, sizeof(pixel_buf_y));
-  memset(pixel_buf_r, 0, sizeof(pixel_buf_r));
+  memset(pixel_buf, 0, sizeof(pixel_buf));
 
   // Config the peripheral connection with maximum bandwidth
   // more SRAM required by SoftDevice
@@ -162,9 +156,7 @@ void bleuart_rx_callback(uint16_t conn_hdl)
     imageHeight = bleuart.read16();
 
     totalPixel = 0;
-    memset(pixel_buf_b, 0, sizeof(pixel_buf_b));
-    memset(pixel_buf_y, 0, sizeof(pixel_buf_y));
-    memset(pixel_buf_r, 0, sizeof(pixel_buf_r));
+    memset(pixel_buf, GxEPD_WHITE, sizeof(pixel_buf));
 
     display.fillScreen(GxEPD_WHITE);
     display.setRotation(2);
@@ -177,13 +169,14 @@ void bleuart_rx_callback(uint16_t conn_hdl)
   }
 
   // Extract pixel data to buffer and draw image line by line
+  const uint16_t bytesPerRow = (imageWidth + 7) / 8;   // 25 for width=200
+
   while ( bleuart.available() >= 3 )
   {
     uint8_t red, green, blue;
 
     if ( imageColorBit == 24 )
     {
-      // Application send 24-bit color
       red = bleuart.read();
       green = bleuart.read();
       blue = bleuart.read();
@@ -191,26 +184,30 @@ void bleuart_rx_callback(uint16_t conn_hdl)
     else
     {
       Serial.println("Error: incorrect color bits ");
-      while(1) yield();
+      while(1) yield(); // TODO fix this, should reset and wait for new image
     }
 
-    // Convert RGB into Eink Color
-    uint8_t c = 0;
+    uint32_t byteIndex = totalPixel % imageWidth;
+
     if ((red < 0x80) && (green < 0x80) && (blue < 0x80)) {
-      pixel_buf_b[totalPixel % imageWidth] = 0xFF;
-      pixel_buf_y[totalPixel % imageWidth] = 0x00;
-      pixel_buf_r[totalPixel % imageWidth] = 0x00;
+       pixel_buf[byteIndex] = GxEPD_BLACK;
     } else if ((red >= 0x80) && (green >= 0x80) && (blue >= 0x80)) {
-      pixel_buf_b[totalPixel % imageWidth] = 0x00;
-      pixel_buf_y[totalPixel % imageWidth] = 0xFF;
-      pixel_buf_r[totalPixel % imageWidth] = 0x00;
-    } else if (red >= 0x80) {
-      pixel_buf_b[totalPixel % imageWidth] = 0x00;
-      pixel_buf_y[totalPixel % imageWidth] = 0x00;
-      pixel_buf_r[totalPixel % imageWidth] = 0xFF;
+       pixel_buf[byteIndex] = GxEPD_WHITE; // Added explicit White handling
+    } else if ((red >= 0x80) && (green >= 0x80) && (blue < 0x80)) {
+       pixel_buf[byteIndex] = GxEPD_YELLOW; // Yellow is High Red + High Green
+    } else if ((red >= 0x80) && (green < 0x80) && (blue < 0x80)) {
+       pixel_buf[byteIndex] = GxEPD_RED; 
+    } else {
+       pixel_buf[byteIndex] = GxEPD_WHITE; // Default fallback for weird colors like your Cyan pixel (04 AA FA)
     }
 
     totalPixel++;
+    if ( (totalPixel % imageWidth) == 0 )
+    {
+      display.drawRGBBitmap(0, totalPixel/imageWidth, pixel_buf, imageWidth, 1);
+    }
+
+    
   }
 
   // all pixel data is received
@@ -221,14 +218,12 @@ void bleuart_rx_callback(uint16_t conn_hdl)
     // do checksum later
 
     // print speed summary
-    print_summary(totalPixel*(imageColorBit/8) + 8, rxLastTime-rxStartTime);
+    print_summary(totalPixel, rxLastTime-rxStartTime);
 
     // Display on Eink, will probably take dozens of seconds
     Serial.println("Displaying image (~20 seconds) .....");
 
-    display.drawBitmap(0, 0, pixel_buf_b,  200, 200, GxEPD_BLACK);
-    display.drawBitmap(0, 0, pixel_buf_r,  200, 200, GxEPD_RED);
-    display.drawBitmap(0, 0, pixel_buf_y,  200, 200, GxEPD_YELLOW);
+
     display.nextPage();
 
     display.hibernate();
