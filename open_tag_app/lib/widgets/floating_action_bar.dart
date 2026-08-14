@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../screens/bluetooth_manager.dart';
+import '../screens/bluetooth_screen.dart';
 import '../theme/app_theme.dart';
 
 /// A single action definition. Wire up [onTap] to real behavior later —
@@ -8,7 +8,7 @@ class ActionBarItem {
   final IconData icon;
   final String label;
   final VoidCallback? onTap;
-
+ 
   const ActionBarItem({
     required this.icon,
     required this.label,
@@ -27,12 +27,20 @@ enum ActionBarLayout {
 /// Floating bar of action buttons. Swap [layout] depending on
 /// orientation to match the sidebar (landscape) / grid (portrait) design.
 class FloatingActionBar extends StatelessWidget {
-  final List<ActionBarItem> items;
   final ActionBarLayout layout;
+
+  void _navToBluetoothScreen(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BluetoothConnectionScreen(themeMode: Theme.of(context).brightness == Brightness.dark ? ThemeMode.dark : ThemeMode.light),
+      ),
+    );
+  }
+ 
 
   const FloatingActionBar({
     super.key,
-    required this.items,
     required this.layout,
   });
 
@@ -40,6 +48,12 @@ class FloatingActionBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final barColor = isDark ? AppTheme.darkBarBg : AppTheme.lightBarBg;
+    final List<ActionBarItem> items = [
+      ActionBarItem(icon: Icons.add, label: 'Bluetooth Device', onTap: () => _navToBluetoothScreen(context)),
+      const ActionBarItem(icon: Icons.share_outlined, label: 'Action 2', onTap: null),
+      const ActionBarItem(icon: Icons.download_outlined, label: 'Action 3', onTap: null),
+      const ActionBarItem(icon: Icons.settings_outlined, label: 'Action 4', onTap: null),
+    ];
 
     late final Widget content;
     if (layout == ActionBarLayout.sidebar) {
@@ -47,7 +61,11 @@ class FloatingActionBar extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           for (int i = 0; i < items.length; i++) ...[
-            _ActionButton(item: items[i], width: 168),
+            FloatingActionButton(
+              onPressed: items[i].onTap,
+              heroTag: 'action_button_$i',
+              child: Icon(items[i].icon), // Unique hero tag for each button
+            ),
             if (i != items.length - 1) const SizedBox(height: 8),
           ],
         ],
@@ -63,7 +81,11 @@ class FloatingActionBar extends StatelessWidget {
           crossAxisSpacing: 8,
           childAspectRatio: 2.3,
           children: items
-              .map((item) => _ActionButton(item: item, width: null))
+              .map((item) => FloatingActionButton(
+                    onPressed: item.onTap,
+                    child: Icon(item.icon),
+                    heroTag: 'action_button_${item.label}', // Unique hero tag for each button
+                  ))
               .toList(),
         ),
       );

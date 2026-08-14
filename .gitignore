@@ -47,7 +47,10 @@ app.*.symbols
 app.*.map.json
 
 # Android Studio will place build artifacts here
-open_tag_app/android/app/debug
-open_tag_app/android/app/profile
-open_tag_app/android/app/release
+android/
+web/
+ios/
+macos/
+windows/
+linux/
 

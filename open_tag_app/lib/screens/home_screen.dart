@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:open_tag_app/screens/bluetooth_screen.dart';
 import '../theme/app_theme.dart';
 import '../widgets/floating_action_bar.dart';
 import '../widgets/image_placeholder.dart';
@@ -12,13 +13,6 @@ class HomeScreen extends StatelessWidget {
     required this.themeMode,
     required this.onToggleTheme,
   });
-
-  List<ActionBarItem> get _items => const [
-        ActionBarItem(icon: Icons.add, label: 'Bluetooth Device'),
-        ActionBarItem(icon: Icons.share_outlined, label: 'Action 2'),
-        ActionBarItem(icon: Icons.download_outlined, label: 'Action 3'),
-        ActionBarItem(icon: Icons.settings_outlined, label: 'Action 4'),
-      ];
 
   @override
   Widget build(BuildContext context) {
@@ -45,13 +39,11 @@ class HomeScreen extends StatelessWidget {
                     return orientation == Orientation.landscape
                         ? _LandscapeLayout(
                             titleColor: titleColor,
-                            items: _items,
                             onToggleTheme: onToggleTheme,
                             isDark: isDark,
                           )
                         : _PortraitLayout(
                             titleColor: titleColor,
-                            items: _items,
                             onToggleTheme: onToggleTheme,
                             isDark: isDark,
                           );
@@ -113,13 +105,11 @@ class _TitleBar extends StatelessWidget {
 /// Landscape: side bar on the left, title + centered image on the right.
 class _LandscapeLayout extends StatelessWidget {
   final Color titleColor;
-  final List<ActionBarItem> items;
   final VoidCallback onToggleTheme;
   final bool isDark;
 
   const _LandscapeLayout({
     required this.titleColor,
-    required this.items,
     required this.onToggleTheme,
     required this.isDark,
   });
@@ -129,10 +119,10 @@ class _LandscapeLayout extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Padding(
-          padding: const EdgeInsets.all(16),
+        const Padding(
+          padding: EdgeInsets.all(16),
           child: Center(
-            child: FloatingActionBar(items: items, layout: ActionBarLayout.sidebar),
+            child: FloatingActionBar(layout: ActionBarLayout.sidebar),
           ),
         ),
         Expanded(
@@ -166,13 +156,11 @@ class _LandscapeLayout extends StatelessWidget {
 /// Portrait: title on top, centered image, action grid pinned to the bottom.
 class _PortraitLayout extends StatelessWidget {
   final Color titleColor;
-  final List<ActionBarItem> items;
   final VoidCallback onToggleTheme;
   final bool isDark;
 
   const _PortraitLayout({
     required this.titleColor,
-    required this.items,
     required this.onToggleTheme,
     required this.isDark,
   });
@@ -199,7 +187,7 @@ class _PortraitLayout extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          FloatingActionBar(items: items, layout: ActionBarLayout.grid),
+          const FloatingActionBar(layout: ActionBarLayout.grid),
         ],
       ),
     );

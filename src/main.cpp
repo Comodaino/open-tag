@@ -159,7 +159,7 @@ void bleuart_rx_callback(uint16_t conn_hdl)
     memset(pixel_buf, GxEPD_WHITE, sizeof(pixel_buf));
 
     display.fillScreen(GxEPD_WHITE);
-    display.setRotation(2);
+    display.setRotation(0);
 
     // Print out the current connection info
     BLEConnection* conn = Bluefruit.Connection(conn_hdl);

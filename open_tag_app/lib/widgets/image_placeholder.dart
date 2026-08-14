@@ -2,6 +2,9 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image/image.dart' as img;
+import 'package:open_tag_app/utils/bt_utils.dart';
+
 
 import '../theme/app_theme.dart';
 
@@ -37,6 +40,9 @@ class _ImagePlaceholderState extends State<ImagePlaceholder> {
         imageQuality: 85,
       );
       if (file != null) {
+        img.Image image = img.decodeImage(await file.readAsBytes())!;
+        img.Image resizedImage = img.copyResize(image, width: 200, height: 200);
+        BluetoothManager().setPayload(resizedImage.getBytes());
         setState(() => _picked = file);
       }
     } catch (e) {
