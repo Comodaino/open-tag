@@ -113,15 +113,26 @@ class _PortraitLayout extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ScanButton(),
-            SizedBox(width: 16),
-            SendButton(),
-            SizedBox(width: 16),
-            DisconnectButton(),
-          ],
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: AppTheme.darkPanelBg,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.black54),
+            boxShadow: const [
+              BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
+            ],
+          ),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 16,
+            children: [
+              ScanButton(),
+              SendButton(),
+              DisconnectButton(),
+            ],
+          ),
         ),
         const SizedBox(height: 16),
         // Display the possible empty list of Bluetooth devices
@@ -139,10 +150,19 @@ class _PortraitLayout extends StatelessWidget {
               itemCount: devices.length,
               itemBuilder: (context, index) {
                 final device = devices[index];
-                return ListTile(
-                  title: Text(device.advName),
-                  subtitle: Text(device.remoteId.toString()),
-                  trailing: BluetoothDeviceButton(device: device),
+                return Container(
+                  margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 80),
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: isDark ? AppTheme.darkPanelBg : AppTheme.lightPanelBg,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.black87, width: 2),
+                  ),
+                  child: ListTile(
+                    title: Text(device.advName != ""? device.advName : device.remoteId.toString()),
+                    subtitle: Text(device.advName != ""? device.remoteId.toString() : "device name not available"),
+                    trailing: BluetoothDeviceButton(device: device),
+                  )
                 );
               },
             );
@@ -155,7 +175,7 @@ class _PortraitLayout extends StatelessWidget {
 
 
 class ScanButton extends StatelessWidget {
-  const ScanButton();
+  const ScanButton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -167,6 +187,7 @@ class ScanButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(4),
       child: IconButton(
         icon: const Icon(Icons.bluetooth_searching),
+        color: isDark ? AppTheme.darkButtonFg : AppTheme.lightButtonFg,
         onPressed: () async {
           await BluetoothManager().scanForDevices();
         },
@@ -188,6 +209,7 @@ class DisconnectButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(4),
       child: IconButton(
         icon: const Icon(Icons.bluetooth_disabled),
+        color: isDark ? AppTheme.darkButtonFg : AppTheme.lightButtonFg,
         onPressed: () async {
           await BluetoothManager().disconnectFromDevice();
         },
@@ -209,6 +231,7 @@ class SendButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(4),
       child: IconButton(
         icon: const Icon(Icons.send),
+        color: isDark ? AppTheme.darkButtonFg : AppTheme.lightButtonFg,
         onPressed: () async {
           print("Sending image to connected device: ${BluetoothManager().getConnectedDevice()?.remoteId}");
           await BluetoothManager().sendImage();

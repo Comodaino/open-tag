@@ -113,7 +113,7 @@ class _ImagePlaceholderState extends State<ImagePlaceholder> {
 
   @override
   Widget build(BuildContext context) {
-    final radius = widget.borderRadius ?? BorderRadius.circular(4);
+    final radius = widget.borderRadius ?? BorderRadius.circular(32);
 
     return GestureDetector(
       onTap: _loading ? null : _showSourceSheet,
@@ -131,7 +131,7 @@ class _ImagePlaceholderState extends State<ImagePlaceholder> {
                 )
               : null,
           borderRadius: radius,
-          border: Border.all(color: Colors.black87, width: 1.5),
+          border: Border.all(color: AppTheme.brandPurple, width: 2),
         ),
         child: _loading
             ? const Center(

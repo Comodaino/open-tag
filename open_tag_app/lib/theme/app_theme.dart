@@ -13,13 +13,14 @@ class AppTheme {
   static const Color darkPanelBg = Color(0xFF3D3D3D); // main card
   static const Color darkBarBg = Color(0xFF6E6E6E); // floating bar
   static const Color darkScaffoldBg = Color(0xFF1E1E1E);
-  static const Color darkButtonBg = Color(0xFFE0DFFB);
-
+  static const Color darkButtonBg = Color(0xFF6E6E6E);
+  static const Color darkButtonFg = Color(0xFFCEBED7);
   // Light mode surfaces
   static const Color lightPanelBg = Color(0xFFECECEC);
   static const Color lightBarBg = Color(0xFFBDBDBD);
   static const Color lightScaffoldBg = Color(0xFFF5F5F5);
   static const Color lightButtonBg = Color(0xFFFFFFFF);
+  static const Color lightButtonFg = Color(0xFF9C00FF);
 
   static ThemeData get light => ThemeData(
         brightness: Brightness.light,

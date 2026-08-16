@@ -74,11 +74,13 @@ class _TitleBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.center,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        const SizedBox(width: 48),
         Text(
           'open-tag',
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: titleColor,
             fontSize: fontSize,
@@ -86,15 +88,12 @@ class _TitleBar extends StatelessWidget {
             letterSpacing: 1.2,
           ),
         ),
-        Positioned(
-          right: 0,
-          child: IconButton(
-            tooltip: isDark ? 'Switch to light mode' : 'Switch to dark mode',
-            onPressed: onToggleTheme,
-            icon: Icon(
-              isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-              color: titleColor,
-            ),
+        IconButton(
+          tooltip: isDark ? 'Switch to light mode' : 'Switch to dark mode',
+          onPressed: onToggleTheme,
+          icon: Icon(
+            isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+            color: titleColor,
           ),
         ),
       ],
