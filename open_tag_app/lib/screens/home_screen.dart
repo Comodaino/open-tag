@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:open_tag_app/screens/bluetooth_screen.dart';
+import 'package:open_tag_app/widgets/connected_device.dart';
 import '../theme/app_theme.dart';
 import '../widgets/floating_action_bar.dart';
 import '../widgets/image_placeholder.dart';
@@ -187,6 +187,8 @@ class _PortraitLayout extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           const FloatingActionBar(layout: ActionBarLayout.grid),
+          const SizedBox(height: 20),
+          const ConnectedDeviceBar(),
         ],
       ),
     );

@@ -22,6 +22,10 @@ class AppTheme {
   static const Color lightButtonBg = Color(0xFFFFFFFF);
   static const Color lightButtonFg = Color(0xFF9C00FF);
 
+  // Utility colors
+  static const Color errorRed = Color.fromARGB(255, 211, 88, 88);
+  static const Color successGreen = Color.fromARGB(255, 87, 149, 87);
+
   static ThemeData get light => ThemeData(
         brightness: Brightness.light,
         useMaterial3: true,

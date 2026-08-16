@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:open_tag_app/utils/bt_utils.dart';
 import '../screens/bluetooth_screen.dart';
 import '../theme/app_theme.dart';
 
@@ -50,7 +53,7 @@ class FloatingActionBar extends StatelessWidget {
     final barColor = isDark ? AppTheme.darkBarBg : AppTheme.lightBarBg;
     final List<ActionBarItem> items = [
       ActionBarItem(icon: Icons.add, label: 'Bluetooth Device', onTap: () => _navToBluetoothScreen(context)),
-      const ActionBarItem(icon: Icons.share_outlined, label: 'Action 2', onTap: null),
+      ActionBarItem(icon: Icons.send, label: 'Send Image', onTap: BluetoothManager().getConnectedDevice() != null ? () { BluetoothManager().sendImage(); } : null),
       const ActionBarItem(icon: Icons.download_outlined, label: 'Action 3', onTap: null),
       const ActionBarItem(icon: Icons.settings_outlined, label: 'Action 4', onTap: null),
     ];
@@ -62,9 +65,19 @@ class FloatingActionBar extends StatelessWidget {
         children: [
           for (int i = 0; i < items.length; i++) ...[
             FloatingActionButton(
-              onPressed: items[i].onTap,
-              heroTag: 'action_button_$i',
-              child: Icon(items[i].icon), // Unique hero tag for each button
+                onPressed: items[i].onTap,
+                heroTag: 'action_button_$i',
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                  Icon(items[i].icon),
+                  const SizedBox(width: 4),
+                  Text(
+                    items[i].label,
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                ],
+              ),
             ),
             if (i != items.length - 1) const SizedBox(height: 8),
           ],
@@ -82,9 +95,19 @@ class FloatingActionBar extends StatelessWidget {
           childAspectRatio: 2.3,
           children: items
               .map((item) => FloatingActionButton(
-                    onPressed: item.onTap,
-                    child: Icon(item.icon),
-                    heroTag: 'action_button_${item.label}', // Unique hero tag for each button
+                    onPressed: item.onTap, 
+                    heroTag: 'action_button_${item.label}',
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(item.icon),
+                        const SizedBox(height: 4),
+                        Text(
+                          item.label,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    ), // Unique hero tag for each button
                   ))
               .toList(),
         ),
@@ -102,66 +125,6 @@ class FloatingActionBar extends StatelessWidget {
         ],
       ),
       child: content,
-    );
-  }
-}
-
-class _ActionButton extends StatelessWidget {
-  final ActionBarItem item;
-  final double? width;
-
-  const _ActionButton({required this.item, this.width});
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final buttonColor = isDark ? AppTheme.darkButtonBg : AppTheme.lightButtonBg;
-
-    return Material(
-      color: buttonColor,
-      borderRadius: BorderRadius.circular(4),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(4),
-        onTap: item.onTap ??
-            () {
-              // Placeholder action — replace with real behavior.
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${item.label} tapped')),
-              );
-              if (item.label == 'Bluetooth Device') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => BluetoothConnectionScreen(themeMode: Theme.of(context).brightness == Brightness.dark ? ThemeMode.dark : ThemeMode.light)),
-                );
-              }
-            },
-        child: Container(
-          width: width,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.black87),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(item.icon, color: const Color(0xFF2B2B2B), size: 18),
-              const SizedBox(width: 6),
-              Flexible(
-                child: Text(
-                  item.label,
-                  style: const TextStyle(
-                    color: Color(0xFF2B2B2B),
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

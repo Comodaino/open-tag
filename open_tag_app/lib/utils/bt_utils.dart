@@ -10,6 +10,7 @@ class BluetoothManager extends ChangeNotifier {
   List<BluetoothDevice> discoveredDevices = [];
   List<BluetoothService> services = [];
   Uint8List? payload;
+  final Guid targetService = Guid("6e400001-b5a3-f393-e0a9-e50e24dcca9e"); // Nordic UART Service UUID
 
   BluetoothManager._internal();
 
@@ -29,6 +30,12 @@ class BluetoothManager extends ChangeNotifier {
     }
     discoveredDevices.clear();
     print("Cleared discovered devices list.");
+    List<BluetoothDevice> systemDevices = await FlutterBluePlus.systemDevices([targetService]);
+    systemDevices.forEach((device) {
+        print('${device.remoteId}: "${device.advName}" found in system devices.');
+    });
+    // filter for
+    discoveredDevices.addAll(systemDevices);
     notifyListeners(); // Notify listeners that the list of discovered devices has changed
 
     var subscription = FlutterBluePlus.onScanResults.listen((results) {
@@ -65,7 +72,7 @@ class BluetoothManager extends ChangeNotifier {
     // Start scanning w/ timeout
     print("Starting scan for Bluetooth devices...");
     await FlutterBluePlus.startScan(
-      // withServices:[Guid("6e400001-b5a3-f393-e0a9-e50e24dcca9e")], // match any of the specified services
+      // withServices:[targetService], // match any of the specified services
       // withNames:["Bluno"], // *or* any of the specified names
       timeout: const Duration(seconds: 15));
 
@@ -87,11 +94,6 @@ class BluetoothManager extends ChangeNotifier {
         if (state == BluetoothConnectionState.disconnected) {
             print("Device disconnected.");
             print("${device.disconnectReason?.code} ${device.disconnectReason?.description}");
-            try {
-              await _connectAndDiscover(device);
-            } catch (e) {
-              print("Reconnect failed: $e");
-            }
         }
     });
 
