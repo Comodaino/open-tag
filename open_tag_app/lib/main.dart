@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'theme/app_theme.dart';
 import 'screens/home_screen.dart';
-import 'utils/bt_utils.dart';
 
 void main() {
   runApp(const OpenTagApp());

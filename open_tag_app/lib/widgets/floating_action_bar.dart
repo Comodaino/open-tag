@@ -40,7 +40,12 @@ class FloatingActionBar extends StatelessWidget {
       ),
     );
   }
- 
+  
+  void _sendImage() {
+    if (BluetoothManager().getConnectedDevice() != null) {
+      BluetoothManager().sendImage();
+    }
+  }
 
   const FloatingActionBar({
     super.key,
@@ -53,7 +58,7 @@ class FloatingActionBar extends StatelessWidget {
     final barColor = isDark ? AppTheme.darkBarBg : AppTheme.lightBarBg;
     final List<ActionBarItem> items = [
       ActionBarItem(icon: Icons.add, label: 'Bluetooth Device', onTap: () => _navToBluetoothScreen(context)),
-      ActionBarItem(icon: Icons.send, label: 'Send Image', onTap: BluetoothManager().getConnectedDevice() != null ? () { BluetoothManager().sendImage(); } : null),
+      ActionBarItem(icon: Icons.send, label: 'Send Image', onTap: () => _sendImage()),
       const ActionBarItem(icon: Icons.download_outlined, label: 'Action 3', onTap: null),
       const ActionBarItem(icon: Icons.settings_outlined, label: 'Action 4', onTap: null),
     ];
@@ -64,19 +69,23 @@ class FloatingActionBar extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           for (int i = 0; i < items.length; i++) ...[
-            FloatingActionButton(
-                onPressed: items[i].onTap,
-                heroTag: 'action_button_$i',
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                  Icon(items[i].icon),
+            SizedBox(
+              width: 200,
+              child: Row (
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FloatingActionButton(
+                    onPressed: items[i].onTap,
+                    heroTag: 'action_button_$i',
+                    child: Icon(items[i].icon),
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     items[i].label,
                     style: const TextStyle(fontSize: 12),
                   ),
-                ],
+                ]
               ),
             ),
             if (i != items.length - 1) const SizedBox(height: 8),
@@ -84,33 +93,33 @@ class FloatingActionBar extends StatelessWidget {
         ],
       );
     } else {
-      content = SizedBox(
-        width: 320,
-        child: GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 8,
-          crossAxisSpacing: 8,
-          childAspectRatio: 2.3,
-          children: items
-              .map((item) => FloatingActionButton(
-                    onPressed: item.onTap, 
-                    heroTag: 'action_button_${item.label}',
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(item.icon),
-                        const SizedBox(height: 4),
-                        Text(
-                          item.label,
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ],
-                    ), // Unique hero tag for each button
-                  ))
-              .toList(),
-        ),
+      content = GridView.count(
+        crossAxisCount: 2,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        mainAxisSpacing: 8,
+        crossAxisSpacing: 8,
+        childAspectRatio: 2.3,
+        mainAxisExtent: 80,
+        children: items
+            .map((item) => FloatingActionButton(
+                  backgroundColor: AppTheme.darkButtonBg,
+                  foregroundColor: AppTheme.darkButtonFg,
+                  onPressed: item.onTap, 
+                  heroTag: 'action_button_${item.label}',
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(item.icon),
+                      const SizedBox(height: 4),
+                      Text(
+                        item.label,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ), // Unique hero tag for each button
+                ))
+            .toList(),
       );
     }
 
@@ -119,12 +128,16 @@ class FloatingActionBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: barColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.black54),
         boxShadow: const [
           BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
         ],
       ),
-      child: content,
+      child: ListenableBuilder(
+        listenable: BluetoothManager(),
+        builder: (context, child) {
+          return content;
+        }
+      )
     );
   }
 }

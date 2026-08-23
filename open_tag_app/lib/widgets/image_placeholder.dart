@@ -12,16 +12,22 @@ import '../theme/app_theme.dart';
 /// user take a photo or pick one from the gallery. Once an image is
 /// selected it replaces the placeholder color with the picked image.
 class ImagePlaceholder extends StatefulWidget {
+  static const ImagePlaceholder _instance = ImagePlaceholder._internal();
   final double? width;
   final double? height;
   final BorderRadius? borderRadius;
 
-  const ImagePlaceholder({
+  const ImagePlaceholder._internal({
     super.key,
     this.width,
     this.height,
     this.borderRadius,
   });
+
+  factory ImagePlaceholder() {
+    return _instance;
+  }
+  
 
   @override
   State<ImagePlaceholder> createState() => _ImagePlaceholderState();
@@ -67,10 +73,6 @@ class _ImagePlaceholderState extends State<ImagePlaceholder> {
         return SafeArea(
           child: Wrap(
             children: [
-              // Camera capture isn't available on web/desktop through
-              // image_picker in the same way, but we still expose the
-              // option — plug in file_picker/desktop camera APIs later
-              // if you need native desktop capture.
               if (!kIsWeb)
                 ListTile(
                   leading: const Icon(Icons.photo_camera_outlined),
@@ -122,16 +124,16 @@ class _ImagePlaceholderState extends State<ImagePlaceholder> {
         height: widget.height,
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          color: _picked == null ? AppTheme.brandPurple : null,
-          gradient: _picked == null
-              ? const LinearGradient(
+          color: AppTheme.brandPurple,
+          gradient: const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [AppTheme.brandPurple, AppTheme.brandPurpleDark],
-                )
-              : null,
+                ),
           borderRadius: radius,
-          border: Border.all(color: AppTheme.brandPurple, width: 2),
+          boxShadow: const [
+            BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
+          ],
         ),
         child: _loading
             ? const Center(

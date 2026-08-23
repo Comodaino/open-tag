@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:open_tag_app/widgets/connected_device.dart';
 import '../theme/app_theme.dart';
 import '../utils/bt_utils.dart';
 
@@ -145,8 +146,8 @@ class _PortraitLayout extends StatelessWidget {
                 child: Text('No devices found. Tap the scan button to search.'),
               );
             }
-            return ListView.builder(
-              shrinkWrap: true,
+            return Flexible(
+            child : ListView.builder(
               itemCount: devices.length,
               itemBuilder: (context, index) {
                 final device = devices[index];
@@ -164,10 +165,14 @@ class _PortraitLayout extends StatelessWidget {
                     trailing: BluetoothDeviceButton(device: device),
                   )
                 );
-              },
+              }
+            )
             );
           },
         ),
+        const SizedBox(height: 20),
+        const ConnectedDeviceBar(),
+        const SizedBox(height: 60),
       ],
     );
   }

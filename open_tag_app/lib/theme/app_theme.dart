@@ -7,13 +7,13 @@ class AppTheme {
 
   // Brand colors
   static const Color brandPurple = Color(0xFF9C00FF); // image placeholder
-  static const Color brandPurpleDark = Color(0xFF6E00C4);
+  static const Color brandPurpleDark = Color.fromRGBO(100, 1, 177, 1);
 
   // Dark mode surfaces
-  static const Color darkPanelBg = Color(0xFF3D3D3D); // main card
-  static const Color darkBarBg = Color(0xFF6E6E6E); // floating bar
-  static const Color darkScaffoldBg = Color(0xFF1E1E1E);
-  static const Color darkButtonBg = Color(0xFF6E6E6E);
+  static const Color darkPanelBg = Color.fromARGB(255, 33, 33, 33); // main card
+  static const Color darkBarBg = Color.fromARGB(255, 55, 55, 55); // floating bar
+  static const Color darkScaffoldBg = Color.fromARGB(255, 25, 25, 25);
+  static const Color darkButtonBg = Color.fromRGBO(107, 49, 151, 1);
   static const Color darkButtonFg = Color(0xFFCEBED7);
   // Light mode surfaces
   static const Color lightPanelBg = Color(0xFFECECEC);
@@ -24,7 +24,7 @@ class AppTheme {
 
   // Utility colors
   static const Color errorRed = Color.fromARGB(255, 211, 88, 88);
-  static const Color successGreen = Color.fromARGB(255, 87, 149, 87);
+  static const Color successGreen = Color.fromARGB(255, 104, 142, 104);
 
   static ThemeData get light => ThemeData(
         brightness: Brightness.light,

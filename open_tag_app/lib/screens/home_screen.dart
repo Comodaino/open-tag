@@ -23,35 +23,30 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1100, maxHeight: 720),
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: panelColor,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.black87, width: 2),
-                ),
-                child: OrientationBuilder(
-                  builder: (context, orientation) {
-                    return orientation == Orientation.landscape
-                        ? _LandscapeLayout(
-                            titleColor: titleColor,
-                            onToggleTheme: onToggleTheme,
-                            isDark: isDark,
-                          )
-                        : _PortraitLayout(
-                            titleColor: titleColor,
-                            onToggleTheme: onToggleTheme,
-                            isDark: isDark,
-                          );
-                  },
-                ),
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: panelColor,
+                boxShadow: const [
+                  BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
+                ],
+              ),
+              child: OrientationBuilder(
+                builder: (context, orientation) {
+                  return orientation == Orientation.landscape
+                      ? _LandscapeLayout(
+                          titleColor: titleColor,
+                          onToggleTheme: onToggleTheme,
+                          isDark: isDark,
+                        )
+                      : _PortraitLayout(
+                          titleColor: titleColor,
+                          onToggleTheme: onToggleTheme,
+                          isDark: isDark,
+                        );
+                },
               ),
             ),
-          ),
         ),
       ),
     );
@@ -79,7 +74,7 @@ class _TitleBar extends StatelessWidget {
       children: [
         const SizedBox(width: 48),
         Text(
-          'open-tag',
+          'Open Tag',
           textAlign: TextAlign.center,
           style: TextStyle(
             color: titleColor,
@@ -135,11 +130,14 @@ class _LandscapeLayout extends StatelessWidget {
                   isDark: isDark,
                 ),
                 const SizedBox(height: 16),
-                const Expanded(
+                Expanded(
                   child: Center(
                     child: AspectRatio(
                       aspectRatio: 1,
-                      child: ImagePlaceholder(),
+                      child: Container(
+                        constraints: const BoxConstraints(maxWidth: 400, maxHeight: 400),
+                        child: ImagePlaceholder(),
+                      )
                     ),
                   ),
                 ),
@@ -166,31 +164,37 @@ class _PortraitLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          _TitleBar(
-            titleColor: titleColor,
-            onToggleTheme: onToggleTheme,
-            isDark: isDark,
-            fontSize: 20,
-          ),
-          const SizedBox(height: 20),
-          const Expanded(
-            child: Center(
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: ImagePlaceholder(),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        _TitleBar(
+          titleColor: titleColor,
+          onToggleTheme: onToggleTheme,
+          isDark: isDark,
+          fontSize: 20,
+        ),
+        const SizedBox(height: 20),
+        Expanded(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 400, maxHeight: 400),
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: ImagePlaceholder(),
+                ),
               ),
             ),
           ),
-          const SizedBox(height: 20),
-          const FloatingActionBar(layout: ActionBarLayout.grid),
-          const SizedBox(height: 20),
-          const ConnectedDeviceBar(),
-        ],
-      ),
+        ),
+        const SizedBox(height: 20),
+        Container(
+          constraints: const BoxConstraints(maxHeight: 200),
+          child: const FloatingActionBar(layout: ActionBarLayout.grid),
+        ),
+        const ConnectedDeviceBar(),
+      ],
     );
   }
 }
