@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:open_tag_app/utils/bt_utils.dart';
 import '../screens/bluetooth_screen.dart';
@@ -31,12 +29,19 @@ enum ActionBarLayout {
 /// orientation to match the sidebar (landscape) / grid (portrait) design.
 class FloatingActionBar extends StatelessWidget {
   final ActionBarLayout layout;
+  final VoidCallback onThemeToggle;
+
+  const FloatingActionBar({
+    super.key,
+    required this.layout,
+    required this.onThemeToggle,
+  });
 
   void _navToBluetoothScreen(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => BluetoothConnectionScreen(themeMode: Theme.of(context).brightness == Brightness.dark ? ThemeMode.dark : ThemeMode.light),
+        MaterialPageRoute(
+          builder: (context) => BluetoothConnectionScreen(onThemeToggle: onThemeToggle),
       ),
     );
   }
@@ -47,15 +52,8 @@ class FloatingActionBar extends StatelessWidget {
     }
   }
 
-  const FloatingActionBar({
-    super.key,
-    required this.layout,
-  });
-
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final barColor = isDark ? AppTheme.darkBarBg : AppTheme.lightBarBg;
     final List<ActionBarItem> items = [
       ActionBarItem(icon: Icons.add, label: 'Bluetooth Device', onTap: () => _navToBluetoothScreen(context)),
       ActionBarItem(icon: Icons.send, label: 'Send Image', onTap: () => _sendImage()),
@@ -103,8 +101,8 @@ class FloatingActionBar extends StatelessWidget {
         mainAxisExtent: 80,
         children: items
             .map((item) => FloatingActionButton(
-                  backgroundColor: AppTheme.darkButtonBg,
-                  foregroundColor: AppTheme.darkButtonFg,
+                  backgroundColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkButtonBg : AppTheme.lightButtonBg,
+                  foregroundColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkButtonFg : AppTheme.lightButtonFg,
                   onPressed: item.onTap, 
                   heroTag: 'action_button_${item.label}',
                   child: Column(
@@ -126,7 +124,7 @@ class FloatingActionBar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: barColor,
+        color: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkBarBg : AppTheme.lightBarBg,
         borderRadius: BorderRadius.circular(20),
         boxShadow: const [
           BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),

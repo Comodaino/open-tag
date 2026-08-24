@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:open_tag_app/widgets/connected_device.dart';
 import 'package:open_tag_app/widgets/progress_bar.dart';
+import 'package:open_tag_app/widgets/top_floating_bar.dart';
 import '../theme/app_theme.dart';
 import '../widgets/floating_action_bar.dart';
 import '../widgets/image_placeholder.dart';
 
 class HomeScreen extends StatelessWidget {
   final ThemeMode themeMode;
-  final VoidCallback onToggleTheme;
+  final VoidCallback onThemeToggle;
 
   const HomeScreen({
     super.key,
     required this.themeMode,
-    required this.onToggleTheme,
+    required this.onThemeToggle,
   });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final panelColor = isDark ? AppTheme.darkPanelBg : AppTheme.lightPanelBg;
-    final titleColor = isDark ? Colors.white : const Color(0xFF2B2B2B);
+    final panelColor = Theme.of(context).brightness == Brightness.dark ? AppTheme.darkPanelBg : AppTheme.lightPanelBg;
 
     return Scaffold(
       body: SafeArea(
@@ -36,14 +36,12 @@ class HomeScreen extends StatelessWidget {
                 builder: (context, orientation) {
                   return orientation == Orientation.landscape
                       ? _LandscapeLayout(
-                          titleColor: titleColor,
-                          onToggleTheme: onToggleTheme,
                           isDark: isDark,
+                          onThemeToggle: onThemeToggle,
                         )
                       : _PortraitLayout(
-                          titleColor: titleColor,
-                          onToggleTheme: onToggleTheme,
                           isDark: isDark,
+                          onThemeToggle: onThemeToggle,
                         );
                 },
               ),
@@ -54,59 +52,14 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-/// Top bar with the app title (open-tag) and a light/dark toggle button.
-class _TitleBar extends StatelessWidget {
-  final Color titleColor;
-  final VoidCallback onToggleTheme;
-  final bool isDark;
-  final double fontSize;
-
-  const _TitleBar({
-    required this.titleColor,
-    required this.onToggleTheme,
-    required this.isDark,
-    this.fontSize = 22,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const SizedBox(width: 48),
-        Text(
-          'Open Tag',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: titleColor,
-            fontSize: fontSize,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-          ),
-        ),
-        IconButton(
-          tooltip: isDark ? 'Switch to light mode' : 'Switch to dark mode',
-          onPressed: onToggleTheme,
-          icon: Icon(
-            isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-            color: titleColor,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 /// Landscape: side bar on the left, title + centered image on the right.
 class _LandscapeLayout extends StatelessWidget {
-  final Color titleColor;
-  final VoidCallback onToggleTheme;
   final bool isDark;
+  final VoidCallback onThemeToggle;
 
   const _LandscapeLayout({
-    required this.titleColor,
-    required this.onToggleTheme,
     required this.isDark,
+    required this.onThemeToggle,
   });
 
   @override
@@ -114,10 +67,10 @@ class _LandscapeLayout extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Padding(
-          padding: EdgeInsets.all(16),
+        Padding(
+          padding: const EdgeInsets.all(16),
           child: Center(
-            child: FloatingActionBar(layout: ActionBarLayout.sidebar),
+            child: FloatingActionBar(layout: ActionBarLayout.sidebar, onThemeToggle: onThemeToggle),
           ),
         ),
         Expanded(
@@ -125,11 +78,7 @@ class _LandscapeLayout extends StatelessWidget {
             padding: const EdgeInsets.only(right: 24, top: 16, bottom: 24),
             child: Column(
               children: [
-                _TitleBar(
-                  titleColor: titleColor,
-                  onToggleTheme: onToggleTheme,
-                  isDark: isDark,
-                ),
+                TopFloatingBar(onThemeToggle: onThemeToggle),
                 const SizedBox(height: 16),
                 Expanded(
                   child: Center(
@@ -153,14 +102,12 @@ class _LandscapeLayout extends StatelessWidget {
 
 /// Portrait: title on top, centered image, action grid pinned to the bottom.
 class _PortraitLayout extends StatelessWidget {
-  final Color titleColor;
-  final VoidCallback onToggleTheme;
   final bool isDark;
+  final VoidCallback onThemeToggle;
 
   const _PortraitLayout({
-    required this.titleColor,
-    required this.onToggleTheme,
     required this.isDark,
+    required this.onThemeToggle,
   });
 
   @override
@@ -168,12 +115,7 @@ class _PortraitLayout extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        _TitleBar(
-          titleColor: titleColor,
-          onToggleTheme: onToggleTheme,
-          isDark: isDark,
-          fontSize: 20,
-        ),
+        TopFloatingBar(onThemeToggle: onThemeToggle),
         const SizedBox(height: 20),
         Expanded(
           child: Center(
@@ -192,7 +134,7 @@ class _PortraitLayout extends StatelessWidget {
         const ProgressBar(),
         Container(
           constraints: const BoxConstraints(maxHeight: 200),
-          child: const FloatingActionBar(layout: ActionBarLayout.grid),
+          child: FloatingActionBar(layout: ActionBarLayout.grid, onThemeToggle: onThemeToggle),
         ),
         const ConnectedDeviceBar(),
       ],

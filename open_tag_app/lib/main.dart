@@ -16,13 +16,6 @@ class OpenTagApp extends StatefulWidget {
 class _OpenTagAppState extends State<OpenTagApp> {
   ThemeMode _themeMode = ThemeMode.dark;
 
-  void _toggleTheme() {
-    setState(() {
-      _themeMode =
-          _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -33,7 +26,11 @@ class _OpenTagAppState extends State<OpenTagApp> {
       themeMode: _themeMode,
       home: HomeScreen(
         themeMode: _themeMode,
-        onToggleTheme: _toggleTheme,
+        onThemeToggle: () {
+          setState(() {
+            _themeMode = _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+          });
+        },
       ),
     );
   }

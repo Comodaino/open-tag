@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:open_tag_app/widgets/connected_device.dart';
 import 'package:open_tag_app/widgets/progress_bar.dart';
+import 'package:open_tag_app/widgets/top_floating_bar.dart';
 import '../theme/app_theme.dart';
 import '../utils/bt_utils.dart';
 
 class BluetoothConnectionScreen extends StatefulWidget {
-  final ThemeMode themeMode;
+  final VoidCallback onThemeToggle;
 
   const BluetoothConnectionScreen({
     super.key,
-    required this.themeMode,
+    required this.onThemeToggle,
   });
 
   @override
@@ -20,25 +21,21 @@ class BluetoothConnectionScreen extends StatefulWidget {
 class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
   @override
   Widget build(BuildContext context) {
-    final isDark = widget.themeMode == ThemeMode.dark;
-    final titleColor = isDark ? Colors.white : Colors.black;
 
     return Scaffold(
-      body: OrientationBuilder(
-        builder: (context, orientation) {
-          if (orientation == Orientation.portrait) {
-            return _PortraitLayout(
-              titleColor: titleColor,
-              isDark: isDark,
-            );
-          } else {
-            return _LandscapeLayout(
-              titleColor: titleColor,
-              isDark: isDark,
-            );
-          }
-        },
-      ),
+        body: SafeArea(
+          child: Center(
+            child: OrientationBuilder(
+          builder: (context, orientation) {
+            if (orientation == Orientation.portrait) {
+              return _PortraitLayout(widget.onThemeToggle);
+            } else {
+              return _LandscapeLayout(widget.onThemeToggle);
+            }
+          },
+        ),
+          ),
+      )
     );
   }
 }
@@ -46,21 +43,16 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
 
 /// Landscape: side bar on the left, title + centered image on the right.
 class _LandscapeLayout extends StatelessWidget {
-  final Color titleColor;
-  final bool isDark;
+  final VoidCallback onThemeToggle;
 
-
-  const _LandscapeLayout({
-    required this.titleColor,
-    required this.isDark,
-  });
+  const _LandscapeLayout(this.onThemeToggle );
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         Align(
-          alignment: Alignment.topLeft,
+          alignment: Alignment.bottomLeft,
           child: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
@@ -68,12 +60,11 @@ class _LandscapeLayout extends StatelessWidget {
             },
           ),
         ),
-        Text(
+        const Text(
           'open-tag',
           style: TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.bold,
-            color: titleColor,
             letterSpacing: 1.2,
           ),
         ),
@@ -85,42 +76,21 @@ class _LandscapeLayout extends StatelessWidget {
 }
 
 class _PortraitLayout extends StatelessWidget {
-  final Color titleColor;
-  final bool isDark;
-  const _PortraitLayout({
-    required this.titleColor,
-    required this.isDark,
-  });
+  final VoidCallback onThemeToggle;
+
+  const _PortraitLayout(this.onThemeToggle);
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Align(
-          alignment: Alignment.topLeft,
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-        ),
-        Text(
-          'open-tag',
-          style: TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            color: titleColor,
-            letterSpacing: 1.2,
-          ),
-        ),
+        TopFloatingBar(onThemeToggle: onThemeToggle),
         const SizedBox(height: 16),
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: AppTheme.darkPanelBg,
+            color: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkPanelBg : AppTheme.lightPanelBg,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.black54),
             boxShadow: const [
               BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
             ],
@@ -156,7 +126,7 @@ class _PortraitLayout extends StatelessWidget {
                     margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 80),
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: isDark ? AppTheme.darkPanelBg : AppTheme.lightPanelBg,
+                      color: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkPanelBg : AppTheme.lightPanelBg,
                       borderRadius: BorderRadius.circular(8),
                       boxShadow: const [
                         BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
@@ -178,10 +148,9 @@ class _PortraitLayout extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(height: 20),
+              SizedBox(height: 10),
               ProgressBar(),
               ConnectedDeviceBar(),
-              SizedBox(height: 20),
             ],
           ),
         ),
@@ -196,15 +165,13 @@ class ScanButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final buttonColor = isDark ? AppTheme.darkButtonBg : AppTheme.lightButtonBg;
 
     return Material(
-      color: buttonColor,
+      color: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkButtonBg : AppTheme.lightButtonBg,
       borderRadius: BorderRadius.circular(4),
       child: IconButton(
         icon: const Icon(Icons.bluetooth_searching),
-        color: isDark ? AppTheme.darkButtonFg : AppTheme.lightButtonFg,
+        color: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkButtonFg : AppTheme.lightButtonFg,
         onPressed: () async {
           await BluetoothManager().scanForDevices();
         },
@@ -218,15 +185,13 @@ class DisconnectButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final buttonColor = isDark ? AppTheme.darkButtonBg : AppTheme.lightButtonBg;
 
     return Material(
-      color: buttonColor,
+      color: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkButtonBg : AppTheme.lightButtonBg ,
       borderRadius: BorderRadius.circular(4),
       child: IconButton(
         icon: const Icon(Icons.bluetooth_disabled),
-        color: isDark ? AppTheme.darkButtonFg : AppTheme.lightButtonFg,
+        color: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkButtonFg : AppTheme.lightButtonFg,
         onPressed: () async {
           await BluetoothManager().disconnectFromDevice();
         },
@@ -240,15 +205,13 @@ class SendButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final buttonColor = isDark ? AppTheme.darkButtonBg : AppTheme.lightButtonBg;
 
     return Material(
-      color: buttonColor,
+      color: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkButtonBg : AppTheme.lightButtonBg ,
       borderRadius: BorderRadius.circular(4),
       child: IconButton(
         icon: const Icon(Icons.send),
-        color: isDark ? AppTheme.darkButtonFg : AppTheme.lightButtonFg,
+        color: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkButtonFg : AppTheme.lightButtonFg,
         onPressed: () async {
           print("Sending image to connected device: ${BluetoothManager().getConnectedDevice()?.remoteId}");
           await BluetoothManager().sendImage();
@@ -270,6 +233,8 @@ class BluetoothDeviceButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
+      foregroundColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkButtonFg : AppTheme.lightButtonFg,
+      backgroundColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkButtonBg : AppTheme.lightButtonBg,
       heroTag: 'connect_button_${device.remoteId}', // Unique hero tag for each device
       // The onPressed logic goes directly here
       onPressed: () async {

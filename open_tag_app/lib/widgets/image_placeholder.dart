@@ -17,12 +17,7 @@ class ImagePlaceholder extends StatefulWidget {
   final double? height;
   final BorderRadius? borderRadius;
 
-  const ImagePlaceholder._internal({
-    super.key,
-    this.width,
-    this.height,
-    this.borderRadius,
-  });
+  const ImagePlaceholder._internal() : width = null, height = null, borderRadius = null;
 
   factory ImagePlaceholder() {
     return _instance;
