@@ -19,7 +19,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final panelColor = Theme.of(context).brightness == Brightness.dark ? AppTheme.darkPanelBg : AppTheme.lightPanelBg;
+    final panelColor = Theme.of(context).brightness == Brightness.dark ? AppTheme.darkScaffoldBg : AppTheme.lightScaffoldBg;
 
     return Scaffold(
       body: SafeArea(

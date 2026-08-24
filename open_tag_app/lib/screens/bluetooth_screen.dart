@@ -143,17 +143,9 @@ class _PortraitLayout extends StatelessWidget {
             );
           },
         ),
-        const Align(
-          alignment: Alignment.bottomCenter,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(height: 10),
-              ProgressBar(),
-              ConnectedDeviceBar(),
-            ],
-          ),
-        ),
+        BluetoothManager().getDiscoveredDevices().isEmpty ? const Spacer() : const SizedBox(height: 10),
+        const ProgressBar(),
+        const ConnectedDeviceBar(),
       ],
     );
   }

@@ -21,8 +21,8 @@ class _TopFloatingBarState extends State<TopFloatingBar> {
        height: 50,
        decoration: BoxDecoration(
          color: Theme.of(context).brightness == Brightness.dark
-             ? const Color.fromARGB(255, 55, 55, 55)
-             : const Color(0xFFBDBDBD),
+             ? AppTheme.darkPanelBg
+             : AppTheme.lightPanelBg,
          boxShadow: const [
            BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
          ],
