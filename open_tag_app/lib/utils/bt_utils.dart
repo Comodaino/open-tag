@@ -10,6 +10,9 @@ class BluetoothManager extends ChangeNotifier {
   List<BluetoothDevice> discoveredDevices = [];
   List<BluetoothService> services = [];
   Uint8List? payload;
+  int chunksTx = 0;
+  int payloadSize = 0;
+  get imgTxProgress => chunksTx > 0 && payloadSize > 0 ? chunksTx / payloadSize : 0.0;
   final Guid targetService = Guid("6e400001-b5a3-f393-e0a9-e50e24dcca9e"); // Nordic UART Service UUID
 
   BluetoothManager._internal();
@@ -175,7 +178,10 @@ class BluetoothManager extends ChangeNotifier {
         print("No payload set — using default image.");
       }
       Uint8List packet = payload ?? setPayload(defaultPayloadImg);
-      for (int i = 0; i < packet.length; i += chunkSize) {
+      payloadSize = packet.length;
+      for (int i = 0; i < payloadSize; i += chunkSize) {
+        chunksTx = i;
+        notifyListeners();
         int end = (i + chunkSize < packet.length) ? i + chunkSize : packet.length;
         Uint8List chunk = Uint8List.fromList(packet.sublist(i, end));
 
@@ -189,6 +195,9 @@ class BluetoothManager extends ChangeNotifier {
       }
 
       print("Bitstream successfully sent!");
+      chunksTx = 0;
+      payloadSize = 0;
+      notifyListeners();
       return true;
     } catch (e) {
       print("Error sending data: $e");

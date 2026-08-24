@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:open_tag_app/widgets/connected_device.dart';
+import 'package:open_tag_app/widgets/progress_bar.dart';
 import '../theme/app_theme.dart';
 import '../utils/bt_utils.dart';
 
@@ -147,32 +148,43 @@ class _PortraitLayout extends StatelessWidget {
               );
             }
             return Flexible(
-            child : ListView.builder(
-              itemCount: devices.length,
-              itemBuilder: (context, index) {
-                final device = devices[index];
-                return Container(
-                  margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 80),
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: isDark ? AppTheme.darkPanelBg : AppTheme.lightPanelBg,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.black87, width: 2),
-                  ),
-                  child: ListTile(
-                    title: Text(device.advName != ""? device.advName : device.remoteId.toString()),
-                    subtitle: Text(device.advName != ""? device.remoteId.toString() : "device name not available"),
-                    trailing: BluetoothDeviceButton(device: device),
-                  )
-                );
-              }
-            )
+              child : ListView.builder(
+                itemCount: devices.length,
+                itemBuilder: (context, index) {
+                  final device = devices[index];
+                  return Container(
+                    margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 80),
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppTheme.darkPanelBg : AppTheme.lightPanelBg,
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: const [
+                        BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
+                      ],
+                    ),
+                    child: ListTile(
+                      title: Text(device.advName != ""? device.advName : device.remoteId.toString()),
+                      subtitle: Text(device.advName != ""? device.remoteId.toString() : "device name not available"),
+                      trailing: BluetoothDeviceButton(device: device),
+                    )
+                  );
+                }
+              )
             );
           },
         ),
-        const SizedBox(height: 20),
-        const ConnectedDeviceBar(),
-        const SizedBox(height: 60),
+        const Align(
+          alignment: Alignment.bottomCenter,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(height: 20),
+              ProgressBar(),
+              ConnectedDeviceBar(),
+              SizedBox(height: 20),
+            ],
+          ),
+        ),
       ],
     );
   }

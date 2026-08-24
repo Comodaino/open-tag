@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:open_tag_app/widgets/connected_device.dart';
+import 'package:open_tag_app/widgets/progress_bar.dart';
 import '../theme/app_theme.dart';
 import '../widgets/floating_action_bar.dart';
 import '../widgets/image_placeholder.dart';
@@ -188,7 +189,7 @@ class _PortraitLayout extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 20),
+        const ProgressBar(),
         Container(
           constraints: const BoxConstraints(maxHeight: 200),
           child: const FloatingActionBar(layout: ActionBarLayout.grid),
