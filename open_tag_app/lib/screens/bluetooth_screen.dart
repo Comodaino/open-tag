@@ -143,7 +143,12 @@ class _PortraitLayout extends StatelessWidget {
             );
           },
         ),
-        BluetoothManager().getDiscoveredDevices().isEmpty ? const Spacer() : const SizedBox(height: 10),
+        ListenableBuilder(
+          listenable: BluetoothManager(),
+          builder: (context, child) {
+            return BluetoothManager().getDiscoveredDevices().isEmpty ? const Spacer() : const SizedBox(height: 10);
+          },
+        ),
         const ProgressBar(),
         const ConnectedDeviceBar(),
       ],
