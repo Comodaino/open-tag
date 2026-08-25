@@ -49,27 +49,83 @@ class _LandscapeLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       children: [
-        Align(
-          alignment: Alignment.bottomLeft,
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
+        TopFloatingBar(onThemeToggle: onThemeToggle),
+        Container(
+          constraints: const BoxConstraints(maxWidth: 300),
+          child: const ConnectedDeviceBar(),
         ),
-        const Text(
-          'open-tag',
-          style: TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
+        const ProgressBar(),
+        const SizedBox(height: 24),
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkPanelBg : AppTheme.lightPanelBg,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: const [
+              BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
+            ],
+          ),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 16,
+            children: [
+              ScanButton(),
+              SendButton(),
+              DisconnectButton(),
+            ],
           ),
         ),
         const SizedBox(height: 16),
-        const ScanButton(),
+        // Display the possible empty list of Bluetooth devices
+        ListenableBuilder(
+          listenable: BluetoothManager(),
+          builder: (context, child) {
+            final devices = BluetoothManager().getDiscoveredDevices();
+            if (devices.isEmpty) {
+              return const Center(
+                child: Text('No devices found. Tap the scan button to search.'),
+              );
+            }
+            return Flexible(
+              child : ListView.builder(
+                itemCount: devices.length,
+                itemBuilder: (context, index) {
+                  final device = devices[index];
+                  return Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 600),
+                        child: Container(
+                        margin: const EdgeInsets.symmetric(vertical: 4),
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkPanelBg : AppTheme.lightPanelBg,
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: const [
+                            BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
+                          ],
+                        ),
+                        child: ListTile(
+                          title: Text(device.advName != ""? device.advName : device.remoteId.toString()),
+                          subtitle: Text(device.advName != ""? device.remoteId.toString() : "device name not available"),
+                          trailing: BluetoothDeviceButton(device: device),
+                        )
+                      )
+                    )
+                  );
+                }
+              )
+            );
+          },
+        ),
+        ListenableBuilder(
+          listenable: BluetoothManager(),
+          builder: (context, child) {
+            return BluetoothManager().getDiscoveredDevices().isEmpty ? const Spacer() : const SizedBox(height: 10);
+          },
+        ),
       ],
     );
   }

@@ -57,8 +57,8 @@ class FloatingActionBar extends StatelessWidget {
     final List<ActionBarItem> items = [
       ActionBarItem(icon: Icons.add, label: 'Bluetooth Device', onTap: () => _navToBluetoothScreen(context)),
       ActionBarItem(icon: Icons.send, label: 'Send Image', onTap: () => _sendImage()),
-      const ActionBarItem(icon: Icons.download_outlined, label: 'Action 3', onTap: null),
-      const ActionBarItem(icon: Icons.settings_outlined, label: 'Action 4', onTap: null),
+      const ActionBarItem(icon: Icons.settings_outlined, label: 'Image settings', onTap: null),
+      const ActionBarItem(icon: Icons.picture_in_picture_outlined, label: 'Picture of the day', onTap: null),
     ];
 
     late final Widget content;
@@ -68,24 +68,27 @@ class FloatingActionBar extends StatelessWidget {
         children: [
           for (int i = 0; i < items.length; i++) ...[
             SizedBox(
-              width: 200,
-              child: Row (
-                mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  FloatingActionButton(
-                    onPressed: items[i].onTap,
-                    heroTag: 'action_button_$i',
-                    child: Icon(items[i].icon),
+              width: 160,
+              child: 
+                FloatingActionButton(
+                  backgroundColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkButtonBg : AppTheme.lightButtonBg,
+                  foregroundColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkButtonFg : AppTheme.lightButtonFg,
+                  onPressed: items[i].onTap,
+                  heroTag: 'action_button_$i',
+                  child: Row (
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const SizedBox(width: 8),
+                      Icon(items[i].icon),
+                      const SizedBox(width: 4),
+                      Text(
+                        items[i].label,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 4),
-                  Text(
-                    items[i].label,
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                ]
+                ),
               ),
-            ),
             if (i != items.length - 1) const SizedBox(height: 8),
           ],
         ],

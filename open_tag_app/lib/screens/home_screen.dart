@@ -64,38 +64,40 @@ class _LandscapeLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Center(
-            child: FloatingActionBar(layout: ActionBarLayout.sidebar, onThemeToggle: onThemeToggle),
-          ),
+    return Column(
+      children:[ 
+        TopFloatingBar(onThemeToggle: onThemeToggle),
+        Container(
+          constraints: const BoxConstraints(maxWidth: 300),
+          child: const ConnectedDeviceBar(),
         ),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(right: 24, top: 16, bottom: 24),
-            child: Column(
+        const ProgressBar(),
+        const SizedBox(height: 24),
+        Stack(
+          alignment: Alignment.topCenter,
+          children: [
+            // Left and right children, pinned to the edges
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                TopFloatingBar(onThemeToggle: onThemeToggle),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: Center(
-                    child: AspectRatio(
-                      aspectRatio: 1,
-                      child: Container(
-                        constraints: const BoxConstraints(maxWidth: 400, maxHeight: 400),
-                        child: ImagePlaceholder(),
-                      )
-                    ),
-                  ),
-                ),
+                FloatingActionBar(layout: ActionBarLayout.sidebar, onThemeToggle: onThemeToggle),
+                const SizedBox(width: 16),
               ],
             ),
-          ),
+            // Middle child, always centered on the full width
+            Align(
+              alignment: Alignment.center,
+              child: Container(
+                  constraints: const BoxConstraints(maxWidth: 600, maxHeight: 600),
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: ImagePlaceholder(),
+                  ),
+                ),
+            ),
+          ],
         ),
-      ],
+      ]
     );
   }
 }
