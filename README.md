@@ -1,5 +1,6 @@
-# ![Open Tag Logo](open_tag_app/assets/ot_logo_radius.png) Open Tag App
 
+# Open Tag
+<img src="open_tag_app/assets/ot_logo_radius.png" alt="Open Tag Logo" style="width:10%; height:auto;"> 
 Open source epaper bluetooth image display, based on the nrf52840 MCU
 
 ## Project Structure
@@ -9,7 +10,9 @@ Open source epaper bluetooth image display, based on the nrf52840 MCU
 
 ## Project Images
 Home screen of the app:
-![App Screenshot](assets/app_screenshot.jpg) 
+
+<img src="assets/app_screenshot.jpg" alt="App Screenshot" style="width:50%; height:auto;"> 
 
 Working prototype:
-![Working prototype](assets/working_prototype.jpg)
+
+<img src="assets/working_prototype.jpg" alt="Working prototype" style="width:50%; height:auto;"> 
