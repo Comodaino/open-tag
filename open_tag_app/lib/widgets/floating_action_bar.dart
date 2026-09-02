@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:open_tag_app/screens/potd_screen.dart';
 import 'package:open_tag_app/utils/bt_utils.dart';
 import '../screens/bluetooth_screen.dart';
 import '../theme/app_theme.dart';
 
-/// A single action definition. Wire up [onTap] to real behavior later —
-/// for now these are placeholders.
 class ActionBarItem {
   final IconData icon;
   final String label;
@@ -52,13 +51,23 @@ class FloatingActionBar extends StatelessWidget {
     }
   }
 
+  void _navToPOTDScreen(BuildContext context) {
+    Navigator.push(
+      context,
+        MaterialPageRoute(
+          builder: (context) => POTDScreen(onThemeToggle: onThemeToggle),
+      ),
+    );
+  }
+  
+
   @override
   Widget build(BuildContext context) {
     final List<ActionBarItem> items = [
       ActionBarItem(icon: Icons.add, label: 'Bluetooth Device', onTap: () => _navToBluetoothScreen(context)),
       ActionBarItem(icon: Icons.send, label: 'Send Image', onTap: () => _sendImage()),
       const ActionBarItem(icon: Icons.settings_outlined, label: 'Image settings', onTap: null),
-      const ActionBarItem(icon: Icons.picture_in_picture_outlined, label: 'Picture of the day', onTap: null),
+      ActionBarItem(icon: Icons.picture_in_picture_outlined, label: 'Picture of the day', onTap: () => _navToPOTDScreen(context)),
     ];
 
     late final Widget content;

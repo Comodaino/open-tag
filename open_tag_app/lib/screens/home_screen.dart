@@ -67,33 +67,35 @@ class _LandscapeLayout extends StatelessWidget {
     return Column(
       children:[ 
         TopFloatingBar(onThemeToggle: onThemeToggle),
-        Container(
-          constraints: const BoxConstraints(maxWidth: 300),
-          child: const ConnectedDeviceBar(),
-        ),
+        Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FloatingActionBar(layout: ActionBarLayout.sidebar, onThemeToggle: onThemeToggle),
+              Container(
+                constraints: const BoxConstraints(maxWidth: 300),
+                child: const ConnectedDeviceBar(),
+              ),
+              //const SizedBox(width: 16),
+              ],
+            ),
         const ProgressBar(),
-        const SizedBox(height: 24),
+        const SizedBox(height: 12),
         Stack(
           alignment: Alignment.topCenter,
           children: [
             // Left and right children, pinned to the edges
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                FloatingActionBar(layout: ActionBarLayout.sidebar, onThemeToggle: onThemeToggle),
-                const SizedBox(width: 16),
-              ],
-            ),
             // Middle child, always centered on the full width
             Align(
               alignment: Alignment.center,
-              child: Container(
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
                   constraints: const BoxConstraints(maxWidth: 600, maxHeight: 600),
                   child: AspectRatio(
                     aspectRatio: 1,
                     child: ImagePlaceholder(),
                   ),
-                ),
+              )
             ),
           ],
         ),

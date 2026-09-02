@@ -1,10 +1,10 @@
-import 'dart:io';
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
 import 'package:open_tag_app/utils/bt_utils.dart';
-
 
 import '../theme/app_theme.dart';
 
@@ -22,16 +22,40 @@ class ImagePlaceholder extends StatefulWidget {
   factory ImagePlaceholder() {
     return _instance;
   }
-  
 
   @override
   State<ImagePlaceholder> createState() => _ImagePlaceholderState();
 }
 
 class _ImagePlaceholderState extends State<ImagePlaceholder> {
-  XFile? _picked;
   final ImagePicker _picker = ImagePicker();
   bool _loading = false;
+
+  // Bytes of whatever we're currently showing (locally picked image,
+  // already resized/encoded). This is what Image.memory renders — no
+  // File/network path fragility across platforms.
+  Uint8List? _previewBytes;
+
+  @override
+  void initState() {
+    super.initState();
+    BluetoothManager().addListener(_onBluetoothChanged);
+  }
+
+  @override
+  void dispose() {
+    BluetoothManager().removeListener(_onBluetoothChanged);
+    super.dispose();
+  }
+
+  void _onBluetoothChanged() {
+    // Only fall back to whatever the Bluetooth payload holds if the user
+    // hasn't picked a local image. A local pick always wins so it doesn't
+    // get clobbered by the outgoing payload we just sent.
+    if (_previewBytes == null) {
+      setState(() {});
+    }
+  }
 
   Future<void> _pickImage(ImageSource source) async {
     setState(() => _loading = true);
@@ -40,20 +64,37 @@ class _ImagePlaceholderState extends State<ImagePlaceholder> {
         source: source,
         imageQuality: 85,
       );
-      if (file != null) {
-        img.Image image = img.decodeImage(await file.readAsBytes())!;
-        img.Image resizedImage = img.copyResize(image, width: 200, height: 200);
-        BluetoothManager().setPayload(resizedImage.getBytes());
-        setState(() => _picked = file);
+      if (file == null) {
+        setState(() => _loading = false);
+        return;
       }
+
+      final Uint8List bytes = await file.readAsBytes();
+      final img.Image? decoded = img.decodeImage(bytes);
+      if (decoded == null) {
+        throw Exception('Unsupported image format');
+      }
+
+      final img.Image resized = img.copyResize(decoded, width: 200, height: 200);
+
+      // Raw pixel payload for the Bluetooth tag device.
+      BluetoothManager().setPayload(resized.getBytes());
+
+      // Encoded (PNG) bytes for on-screen preview.
+      final Uint8List previewBytes = Uint8List.fromList(img.encodePng(resized));
+
+      if (!mounted) return;
+      setState(() {
+        _previewBytes = previewBytes;
+        _loading = false;
+      });
     } catch (e) {
       if (mounted) {
+        setState(() => _loading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Could not get image: $e')),
         );
       }
-    } finally {
-      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -85,13 +126,13 @@ class _ImagePlaceholderState extends State<ImagePlaceholder> {
                   _pickImage(ImageSource.gallery);
                 },
               ),
-              if (_picked != null)
+              if (_previewBytes != null)
                 ListTile(
                   leading: const Icon(Icons.delete_outline),
                   title: const Text('Remove image'),
                   onTap: () {
                     Navigator.pop(ctx);
-                    setState(() => _picked = null);
+                    setState(() => _previewBytes = null);
                   },
                 ),
             ],
@@ -101,16 +142,15 @@ class _ImagePlaceholderState extends State<ImagePlaceholder> {
     );
   }
 
-  Widget _buildImage() {
-    if (kIsWeb) {
-      return Image.network(_picked!.path, fit: BoxFit.cover);
-    }
-    return Image.file(File(_picked!.path), fit: BoxFit.cover);
-  }
-
   @override
   Widget build(BuildContext context) {
     final radius = widget.borderRadius ?? BorderRadius.circular(32);
+
+    // Local pick takes priority; otherwise fall back to whatever's on
+    // the Bluetooth payload (assumed to already be encoded image bytes).
+    print("Preview bytes length: ${_previewBytes?.length ?? 0}");
+    print("Bluetooth payload length: ${BluetoothManager().getPayload?.length ?? 0}");
+    final Uint8List? displayBytes = _previewBytes ?? BluetoothManager().getPayload;
 
     return GestureDetector(
       onTap: _loading ? null : _showSourceSheet,
@@ -121,28 +161,33 @@ class _ImagePlaceholderState extends State<ImagePlaceholder> {
         decoration: BoxDecoration(
           color: AppTheme.brandPurple,
           gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [AppTheme.brandPurple, AppTheme.brandPurpleDark],
-                ),
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [AppTheme.brandPurple, AppTheme.brandPurpleDark],
+          ),
           borderRadius: radius,
           boxShadow: const [
             BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
           ],
         ),
         child: _loading
-            ? const Center(
-                child: CircularProgressIndicator(color: Colors.white),
-              )
-            : _picked == null
-                ? const Center(
-                    child: Icon(
-                      Icons.add_a_photo_outlined,
-                      color: Colors.white70,
-                      size: 40,
+            ? const Center(child: CircularProgressIndicator(color: Colors.white))
+            : displayBytes != null
+                ? Image.memory(
+                    img.encodePng(img.Image.fromBytes(
+                        width: 200,
+                        height: 200,
+                        bytes: displayBytes.buffer,
+                        numChannels: 3,
+                      )),
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => const Center(
+                      child: Icon(Icons.broken_image_outlined, color: Colors.white70, size: 40),
                     ),
                   )
-                : _buildImage(),
+                : const Center(
+                    child: Icon(Icons.add_a_photo_outlined, color: Colors.white70, size: 40),
+                  ),
       ),
     );
   }

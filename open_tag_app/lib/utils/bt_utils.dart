@@ -10,6 +10,7 @@ class BluetoothManager extends ChangeNotifier {
   List<BluetoothDevice> discoveredDevices = [];
   List<BluetoothService> services = [];
   Uint8List? payload;
+  get getPayload => payload;
   int chunksTx = 0;
   int payloadSize = 0;
   get imgTxProgress => chunksTx > 0 && payloadSize > 0 ? chunksTx / payloadSize : 0.0;
@@ -34,9 +35,9 @@ class BluetoothManager extends ChangeNotifier {
     discoveredDevices.clear();
     print("Cleared discovered devices list.");
     List<BluetoothDevice> systemDevices = await FlutterBluePlus.systemDevices([targetService]);
-    systemDevices.forEach((device) {
+    for (var device in systemDevices) {
         print('${device.remoteId}: "${device.advName}" found in system devices.');
-    });
+    }
     // filter for
     discoveredDevices.addAll(systemDevices);
     notifyListeners(); // Notify listeners that the list of discovered devices has changed
@@ -214,8 +215,13 @@ class BluetoothManager extends ChangeNotifier {
   }
 
   Uint8List setPayload(Uint8List newPayload) {
-    BytesBuilder packetBuilder = BytesBuilder();
+    payload = newPayload;
+    notifyListeners();
+    return newPayload;
+  }
 
+  Uint8List? packetToSend() {
+    BytesBuilder packetBuilder = BytesBuilder();
     // --- ADD HEADER ---
     packetBuilder.addByte(0x21); // ASCII '!'
     packetBuilder.addByte(0x49); // ASCII 'I'
@@ -224,7 +230,7 @@ class BluetoothManager extends ChangeNotifier {
     packetBuilder.addByte((200 >> 8) & 0xFF);
     packetBuilder.addByte(200 & 0xFF);
     packetBuilder.addByte((200 >> 8) & 0xFF);
-    packetBuilder.add(newPayload);
+    packetBuilder.add(payload?? defaultPayloadImg);
 
     Uint8List packetWithoutCrc = packetBuilder.toBytes();
 
@@ -234,8 +240,6 @@ class BluetoothManager extends ChangeNotifier {
     }
 
     packetBuilder.addByte(crc);
-    payload = packetBuilder.toBytes();
-    notifyListeners();
     return packetBuilder.toBytes();
   }
 }
