@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:open_tag_app/utils/material_banners.dart';
 import 'package:open_tag_app/widgets/connected_device.dart';
 import 'package:open_tag_app/widgets/progress_bar.dart';
 import 'package:open_tag_app/widgets/top_floating_bar.dart';
@@ -141,30 +142,10 @@ class _PortraitLayout extends StatelessWidget {
       children: [
         TopFloatingBar(onThemeToggle: onThemeToggle),
         const SizedBox(height: 16),
-        NasaPOTDWidget(),
-  
-        // Container(
-        //   padding: const EdgeInsets.all(10),
-        //   decoration: BoxDecoration(
-        //     color: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkPanelBg : AppTheme.lightPanelBg,
-        //     borderRadius: BorderRadius.circular(12),
-        //     boxShadow: const [
-        //       BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
-        //     ],
-        //   ),
-        //   child: Column(
-        //     mainAxisSize: MainAxisSize.min,
-        //     mainAxisAlignment: MainAxisAlignment.center,
-        //     spacing: 16,
-        //     children: [
-              
-        //     ],
-        //   ),
-        // ),
+        const NasaPOTDWidget(),
 
-        const SendButton(),
+        const Spacer(),
         const SizedBox(height: 16),
-        const ProgressBar(),
         const ConnectedDeviceBar(),
       ],
     );
@@ -251,6 +232,17 @@ class _NasaPOTDWidgetState extends State<NasaPOTDWidget> {
 
                       http.Response response = await http.get(Uri.parse("https://api.nasa.gov/planetary/apod?api_key=$storedAPIKey"));
                       if (response.statusCode != 200) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+                        }
+                        String errorMessage = "";
+                        if (response.statusCode >= 400 && response.statusCode < 500) {
+                          errorMessage = "Error: Invalid API key. Please check your NASA API key.";
+                        } else if (response.statusCode >= 500 && response.statusCode < 600) {
+                          errorMessage = "Error: Server side error. Please try again later.";
+                        }
+
+                        showErrorBanner(context, errorMessage);
                         throw Exception("Failed to load image: ${response.statusCode}");
                       }
                       JsonDecoder decoder = const JsonDecoder();
@@ -263,6 +255,7 @@ class _NasaPOTDWidgetState extends State<NasaPOTDWidget> {
                       if (response.statusCode != 200) {
                         throw Exception("Failed to load image: ${response.statusCode}");
                       }
+                      showSuccessBanner(context, "Image successfully fetched!");
                       final img.Image? decoded = img.decodeImage(response.bodyBytes);
                       if (decoded == null) {
                         throw Exception("Failed to decode image");
