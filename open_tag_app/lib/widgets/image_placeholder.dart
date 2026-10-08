@@ -77,11 +77,12 @@ class _ImagePlaceholderState extends State<ImagePlaceholder> {
 
       final img.Image resized = img.copyResize(decoded, width: 200, height: 200);
 
-      // Raw pixel payload for the Bluetooth tag device.
-      BluetoothManager().setPayload(resized.getBytes());
-
       // Encoded (PNG) bytes for on-screen preview.
-      final Uint8List previewBytes = Uint8List.fromList(img.encodePng(resized));
+      final Uint8List previewBytes = resized.getBytes(order: img.ChannelOrder.rgb);
+      print("wow ${previewBytes.length}");
+      // Raw pixel payload for the Bluetooth tag device.
+      BluetoothManager().setPayload(previewBytes);
+
 
       if (!mounted) return;
       setState(() {
@@ -150,7 +151,8 @@ class _ImagePlaceholderState extends State<ImagePlaceholder> {
     // the Bluetooth payload (assumed to already be encoded image bytes).
     print("Preview bytes length: ${_previewBytes?.length ?? 0}");
     print("Bluetooth payload length: ${BluetoothManager().getPayload?.length ?? 0}");
-    final Uint8List? displayBytes = _previewBytes ?? BluetoothManager().getPayload;
+    //print(BluetoothManager().getPayload());
+    final Uint8List? displayBytes =  _previewBytes;
 
     return GestureDetector(
       onTap: _loading ? null : _showSourceSheet,
@@ -174,17 +176,22 @@ class _ImagePlaceholderState extends State<ImagePlaceholder> {
             ? const Center(child: CircularProgressIndicator(color: Colors.white))
             : displayBytes != null
                 ? Image.memory(
-                    img.encodePng(img.Image.fromBytes(
+                  Uint8List.fromList(img.encodePng(
+                      img.Image.fromBytes(
                         width: 200,
                         height: 200,
                         bytes: displayBytes.buffer,
                         numChannels: 3,
-                      )),
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => const Center(
-                      child: Icon(Icons.broken_image_outlined, color: Colors.white70, size: 40),
-                    ),
-                  )
+                      )
+                  )),
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    print(error);
+                    return const Center(
+                        child: Icon(Icons.broken_image_outlined, color: Colors.white70, size: 40),
+                      );
+                  }
+                )
                 : const Center(
                     child: Icon(Icons.add_a_photo_outlined, color: Colors.white70, size: 40),
                   ),

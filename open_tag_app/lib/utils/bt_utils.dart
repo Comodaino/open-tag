@@ -10,7 +10,7 @@ class BluetoothManager extends ChangeNotifier {
   List<BluetoothDevice> discoveredDevices = [];
   List<BluetoothService> services = [];
   Uint8List? payload;
-  get getPayload => payload;
+  get getPayload => payload?? defaultPayloadImg;
   int chunksTx = 0;
   int payloadSize = 0;
   get imgTxProgress => chunksTx > 0 && payloadSize > 0 ? chunksTx / payloadSize : 0.0;
@@ -178,7 +178,7 @@ class BluetoothManager extends ChangeNotifier {
       if (payload == null) {
         print("No payload set — using default image.");
       }
-      Uint8List packet = payload ?? setPayload(defaultPayloadImg);
+      Uint8List packet = packetToSend();
       payloadSize = packet.length;
       for (int i = 0; i < payloadSize; i += chunkSize) {
         chunksTx = i;
@@ -220,7 +220,7 @@ class BluetoothManager extends ChangeNotifier {
     return newPayload;
   }
 
-  Uint8List? packetToSend() {
+  Uint8List packetToSend() {
     BytesBuilder packetBuilder = BytesBuilder();
     // --- ADD HEADER ---
     packetBuilder.addByte(0x21); // ASCII '!'
