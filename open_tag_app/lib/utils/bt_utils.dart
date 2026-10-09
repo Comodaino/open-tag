@@ -11,6 +11,7 @@ class BluetoothManager extends ChangeNotifier {
   List<BluetoothService> services = [];
   Uint8List? payload;
   get getPayload => payload?? defaultPayloadImg;
+  String get getPrefDeviceId => "F7:5B:EB:9E:E0:48";
   int chunksTx = 0;
   int payloadSize = 0;
   get imgTxProgress => chunksTx > 0 && payloadSize > 0 ? chunksTx / payloadSize : 0.0;

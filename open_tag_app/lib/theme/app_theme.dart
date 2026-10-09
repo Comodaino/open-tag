@@ -21,12 +21,18 @@ class AppTheme extends ChangeNotifier {
   static const Color darkScaffoldBg = Color.fromARGB(255, 25, 25, 25);
   static const Color darkButtonBg = Color.fromARGB(255, 82, 76, 95);
   static const Color darkButtonFg = Color.fromARGB(255, 219, 198, 231);
+  static const Color darkText = Color.fromARGB(255, 219, 198, 231);
+  static const Color darkPanelBgDisabled = Color.fromARGB(73, 33, 33, 33);
+  static const Color darkButtonFgDisabled = Color.fromARGB(73, 219, 198, 231);
+
   // Light mode surfaces
   static const Color lightPanelBg = Color.fromARGB(255, 236, 236, 236);
   static const Color lightBarBg = Color.fromARGB(255, 189, 189, 189);
   static const Color lightScaffoldBg = Color.fromARGB(255, 245, 245, 245);
   static const Color lightButtonBg = Color.fromARGB(255, 255, 255, 255);
   static const Color lightButtonFg = Color.fromARGB(255, 171, 150, 183);
+  static const Color lightPanelBgDisabled = Color.fromARGB(73, 236, 236, 236);
+  static const Color lightButtonFgDisabled = Color.fromARGB(73, 171, 150, 183);
 
   // Utility colors
   static const Color errorRed = Color.fromARGB(255, 211, 88, 88);

@@ -1,10 +1,11 @@
-import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:math';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
 import 'package:open_tag_app/utils/bt_utils.dart';
+import 'package:open_tag_app/screens/crop_screen.dart';
 
 import '../theme/app_theme.dart';
 
@@ -36,6 +37,13 @@ class _ImagePlaceholderState extends State<ImagePlaceholder> {
   // File/network path fragility across platforms.
   Uint8List? _previewBytes;
 
+  final List<List<num>> _palette = [
+    [0, 0, 0],       // Black
+    [255, 255, 255], // White
+    [255, 0, 0],     // Red
+    [255, 255, 0],   // Yellow
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -62,7 +70,7 @@ class _ImagePlaceholderState extends State<ImagePlaceholder> {
     try {
       final XFile? file = await _picker.pickImage(
         source: source,
-        imageQuality: 85,
+        imageQuality: 100,
       );
       if (file == null) {
         setState(() => _loading = false);
@@ -75,7 +83,24 @@ class _ImagePlaceholderState extends State<ImagePlaceholder> {
         throw Exception('Unsupported image format');
       }
 
-      final img.Image resized = img.copyResize(decoded, width: 200, height: 200);
+      final Uint8List rawBytes = await file.readAsBytes();
+
+      if (!mounted) return;
+
+      final Uint8List? croppedBytes = await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => CropScreen(imageBytes: rawBytes),
+        ),
+      );
+
+      final img.Image resized;
+      if (croppedBytes != null) {
+        resized = img.copyResize(img.decodeImage(croppedBytes)!, width: 200, height: 200);
+      } else {
+        resized = img.copyResize(decoded, width: 200, height: 200);
+      }
+
+      _applyFloydSteinbergDithering(resized);
 
       // Encoded (PNG) bytes for on-screen preview.
       final Uint8List previewBytes = resized.getBytes(order: img.ChannelOrder.rgb);
@@ -96,6 +121,63 @@ class _ImagePlaceholderState extends State<ImagePlaceholder> {
           SnackBar(content: Text('Could not get image: $e')),
         );
       }
+    }
+  }
+
+  void _applyFloydSteinbergDithering(img.Image image) {
+    for (int y = 0; y < image.height; y++) {
+      for (int x = 0; x < image.width; x++) {
+        final pixel = image.getPixel(x, y);
+
+        final oldR = pixel.r;
+        final oldG = pixel.g;
+        final oldB = pixel.b;
+
+        // Find closest color in the palette
+        final nearest = _getNearestColor(oldR, oldG, oldB);
+        final newR = nearest[0];
+        final newG = nearest[1];
+        final newB = nearest[2];
+
+        // Set the pixel to the palette color
+        pixel.setRgb(newR, newG, newB);
+
+        // Calculate the color error
+        final errR = oldR - newR;
+        final errG = oldG - newG;
+        final errB = oldB - newB;
+
+        // Distribute the error to surrounding pixels (Floyd-Steinberg diffusion matrix)
+        _distributeError(image, x + 1, y, errR, errG, errB, 7 / 16);
+        _distributeError(image, x - 1, y + 1, errR, errG, errB, 3 / 16);
+        _distributeError(image, x, y + 1, errR, errG, errB, 5 / 16);
+        _distributeError(image, x + 1, y + 1, errR, errG, errB, 1 / 16);
+      }
+    }
+  }
+
+  List<num> _getNearestColor(num r, num g, num b) {
+    List<num> nearest = _palette.first;
+    num minDistance = double.infinity;
+
+    for (final color in _palette) {
+      final distance = pow(r - color[0], 2) + pow(g - color[1], 2) + pow(b - color[2], 2);
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearest = color;
+      }
+    }
+    return nearest;
+  }
+
+  void _distributeError(img.Image imgData, int x, int y, num errR, num errG, num errB, double factor) {
+    if (x >= 0 && x < imgData.width && y >= 0 && y < imgData.height) {
+      final p = imgData.getPixel(x, y);
+      p.setRgb(
+        (p.r + errR * factor).clamp(0, 255),
+        (p.g + errG * factor).clamp(0, 255),
+        (p.b + errB * factor).clamp(0, 255),
+      );
     }
   }
 

@@ -83,7 +83,11 @@ class _LandscapeLayout extends StatelessWidget {
         ListenableBuilder(
           listenable: BluetoothManager(),
           builder: (context, child) {
-            final devices = BluetoothManager().getDiscoveredDevices();
+            final devices = BluetoothManager().getDiscoveredDevices().toList()..sort((a, b) {
+                    if (a.remoteId.toString() == BluetoothManager().getPrefDeviceId) return -1;
+                    if (b.remoteId.toString() == BluetoothManager().getPrefDeviceId) return 1;
+                    return 0;
+                  });
             if (devices.isEmpty) {
               return const Center(
                 child: Text('No devices found. Tap the scan button to search.'),
@@ -101,15 +105,15 @@ class _LandscapeLayout extends StatelessWidget {
                         margin: const EdgeInsets.symmetric(vertical: 4),
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkPanelBg : AppTheme.lightPanelBg,
+                          color: Theme.of(context).brightness == Brightness.dark ?  device.remoteId.toString() == BluetoothManager().getPrefDeviceId ? AppTheme.darkPanelBg : AppTheme.darkPanelBgDisabled :  device.remoteId.toString() == BluetoothManager().getPrefDeviceId ? AppTheme.lightPanelBg : AppTheme.lightPanelBgDisabled,
                           borderRadius: BorderRadius.circular(8),
                           boxShadow: const [
                             BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
                           ],
                         ),
                         child: ListTile(
-                          title: Text(device.advName != ""? device.advName : device.remoteId.toString()),
-                          subtitle: Text(device.advName != ""? device.remoteId.toString() : "device name not available"),
+                          title: Text(device.advName != ""? device.advName : device.remoteId.toString(), style: TextStyle( color: Theme.of(context).brightness == Brightness.dark ? device.remoteId.toString() == BluetoothManager().getPrefDeviceId ? AppTheme.darkButtonFg : AppTheme.darkButtonFgDisabled : device.remoteId.toString() == BluetoothManager().getPrefDeviceId ? AppTheme.lightButtonFg : AppTheme.lightButtonFgDisabled)),
+                          subtitle: Text(device.advName != ""? device.remoteId.toString() : "device name not available", style: TextStyle( color: Theme.of(context).brightness == Brightness.dark ? device.remoteId.toString() == BluetoothManager().getPrefDeviceId ? AppTheme.darkButtonFg : AppTheme.darkButtonFgDisabled : device.remoteId.toString() == BluetoothManager().getPrefDeviceId ? AppTheme.lightButtonFg : AppTheme.lightButtonFgDisabled)),
                           trailing: BluetoothDeviceButton(device: device),
                         )
                       )
@@ -167,7 +171,11 @@ class _PortraitLayout extends StatelessWidget {
         ListenableBuilder(
           listenable: BluetoothManager(),
           builder: (context, child) {
-            final devices = BluetoothManager().getDiscoveredDevices();
+            final devices = BluetoothManager().getDiscoveredDevices().toList()..sort((a, b) {
+                    if (a.remoteId.toString() == BluetoothManager().getPrefDeviceId) return -1;
+                    if (b.remoteId.toString() == BluetoothManager().getPrefDeviceId) return 1;
+                    return 0;
+                  });
             if (devices.isEmpty) {
               return const Center(
                 child: Text('No devices found. Tap the scan button to search.'),
@@ -182,15 +190,15 @@ class _PortraitLayout extends StatelessWidget {
                     margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 80),
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkPanelBg : AppTheme.lightPanelBg,
+                      color: Theme.of(context).brightness == Brightness.dark ?  device.remoteId.toString() == BluetoothManager().getPrefDeviceId ? AppTheme.darkPanelBg : AppTheme.darkPanelBgDisabled :  device.remoteId.toString() == BluetoothManager().getPrefDeviceId ? AppTheme.lightPanelBg : AppTheme.lightPanelBgDisabled,
                       borderRadius: BorderRadius.circular(8),
                       boxShadow: const [
                         BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
                       ],
                     ),
                     child: ListTile(
-                      title: Text(device.advName != ""? device.advName : device.remoteId.toString()),
-                      subtitle: Text(device.advName != ""? device.remoteId.toString() : "device name not available"),
+                      title: Text(device.advName != ""? device.advName : device.remoteId.toString(), style: TextStyle(color: Theme.of(context).brightness == Brightness.dark ? device.remoteId.toString() == BluetoothManager().getPrefDeviceId ? AppTheme.darkButtonFg : AppTheme.darkButtonFgDisabled : device.remoteId.toString() == BluetoothManager().getPrefDeviceId ? AppTheme.lightButtonFg : AppTheme.lightButtonFgDisabled)),
+                      subtitle: Text(device.advName != ""? device.remoteId.toString() : "device name not available", style: TextStyle(color: Theme.of(context).brightness == Brightness.dark ? device.remoteId.toString() == BluetoothManager().getPrefDeviceId ? AppTheme.darkButtonFg : AppTheme.darkButtonFgDisabled : device.remoteId.toString()== BluetoothManager().getPrefDeviceId ? AppTheme.lightButtonFg : AppTheme.lightButtonFgDisabled)),
                       trailing: BluetoothDeviceButton(device: device),
                     )
                   );
